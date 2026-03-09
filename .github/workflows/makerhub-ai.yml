@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   analyze:
     runs-on: ubuntu-latest
@@ -18,10 +21,21 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install AI tools
+      - name: Install Dependencies
         run: |
-          pip install pandas numpy markdown
+          pip install pandas numpy markdown requests
 
       - name: Run MakerHub Analyzer
         run: |
           python scripts/analyze_repo.py
+
+      - name: Commit Generated Report
+        run: |
+          git config --global user.name "MakerHub-AI"
+          git config --global user.email "ai@makerhub.local"
+
+          git add makerhub_org_report.md || echo "No report generated"
+
+          git commit -m "AI generated organization report" || echo "No changes to commit"
+
+          git push
