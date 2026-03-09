@@ -3,9 +3,12 @@ import os
 from datetime import datetime
 
 ORG_NAME = "MakerHub-24-7"
-OUTPUT_DIR = "reports"
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+REPORT_DIR = "reports"
+PROMPT_DIR = "prompts"
+
+os.makedirs(REPORT_DIR, exist_ok=True)
+os.makedirs(PROMPT_DIR, exist_ok=True)
 
 print("MakerHub Knowledge Engine Running")
 
@@ -15,6 +18,7 @@ repos = requests.get(repos_url).json()
 repo_count = len(repos)
 
 knowledge_entries = []
+prompt_entries = []
 
 for repo in repos:
 
@@ -42,37 +46,45 @@ for repo in repos:
             preview = text[:300].replace("\n", " ")
 
             knowledge_entries.append(
-                f"""
-### Repository: {repo_name}
-File: {item['name']}
-
-Preview:
-{preview}
-
----
-"""
+                f"| {repo_name} | {item['name']} | {preview} |"
             )
 
-report = f"""
+# scan local prompt directory
+for root, dirs, files in os.walk(PROMPT_DIR):
+    for file in files:
+        if file.endswith(".md"):
+            prompt_entries.append(f"| {file} | {root} |")
+
+# knowledge report
+knowledge_report = f"""
 # MakerHub Knowledge Report
 
 Generated: {datetime.utcnow()}
 
 Repositories scanned: {repo_count}
 
-Total documentation files found: {len(knowledge_entries)}
-
 ---
 
-## Documentation Knowledge Base
-
-{''.join(knowledge_entries)}
-
+| Repository | File | Preview |
+|---|---|---|
+{chr(10).join(knowledge_entries)}
 """
 
-report_path = os.path.join(OUTPUT_DIR, "knowledge_report.md")
+with open(os.path.join(REPORT_DIR, "knowledge_report.md"), "w") as f:
+    f.write(knowledge_report)
 
-with open(report_path, "w") as f:
-    f.write(report)
+# prompt index
+prompt_report = f"""
+# MakerHub Prompt Index
 
-print("Knowledge report generated.")
+Generated: {datetime.utcnow()}
+
+| Prompt | Location |
+|---|---|
+{chr(10).join(prompt_entries)}
+"""
+
+with open(os.path.join(REPORT_DIR, "prompt_index.md"), "w") as f:
+    f.write(prompt_report)
+
+print("Reports generated")
