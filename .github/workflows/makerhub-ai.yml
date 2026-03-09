@@ -34,7 +34,7 @@ jobs:
           git config --global user.name "MakerHub-AI"
           git config --global user.email "ai@makerhub.local"
 
-          git add makerhub_org_report.md || echo "No report generated"
+          git add reports/
 
           git commit -m "AI generated organization report" || echo "No changes to commit"
 
