@@ -1,17 +1,33 @@
+import requests
 import os
 
-print("MakerHub AI Analyzer Running")
+ORG_NAME = "MakerHub-24-7"
+OUTPUT_FILE = "makerhub_org_report.md"
 
-documentation_files = []
+print("MakerHub Organization Analyzer Running")
 
-for root, dirs, files in os.walk("."):
-    for file in files:
-        if file.endswith(".md"):
-            documentation_files.append(file)
+url = f"https://api.github.com/orgs/{ORG_NAME}/repos"
+response = requests.get(url)
+repos = response.json()
 
-print("Documentation files discovered:")
+report_lines = []
+report_lines.append("# MakerHub Organization Report\n")
 
-for doc in documentation_files:
-    print("-", doc)
+repo_count = len(repos)
+report_lines.append(f"Total repositories: {repo_count}\n")
 
-print("Analysis complete")
+for repo in repos:
+    name = repo["name"]
+    stars = repo["stargazers_count"]
+    forks = repo["forks_count"]
+
+    report_lines.append(f"## {name}")
+    report_lines.append(f"Stars: {stars}")
+    report_lines.append(f"Forks: {forks}\n")
+
+print("Repositories analyzed:", repo_count)
+
+with open(OUTPUT_FILE, "w") as f:
+    f.write("\n".join(report_lines))
+
+print("Report generated:", OUTPUT_FILE)
