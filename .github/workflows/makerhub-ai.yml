@@ -1,0 +1,27 @@
+name: MakerHub AI Automation
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install AI tools
+        run: |
+          pip install pandas numpy markdown
+
+      - name: Run MakerHub Analyzer
+        run: |
+          python scripts/analyze_repo.py
